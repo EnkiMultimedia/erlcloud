@@ -13,7 +13,7 @@
 
 -export([request/6]).
 
--type request_fun() :: 
+-type request_fun() ::
     lhttpc | httpc | hackney |
     {module(), atom()} |
     fun((string(),
@@ -39,9 +39,6 @@
 -export_type([result/0]).
 
 request(URL, Method, Hdrs, Body, Timeout,
-        #aws_config{http_client = lhttpc} = Config) ->
-    request_lhttpc(URL, Method, Hdrs, Body, Timeout, Config);
-request(URL, Method, Hdrs, Body, Timeout,
         #aws_config{http_client = httpc} = Config) ->
     request_httpc(URL, Method, Hdrs, Body, Timeout, Config);
 request(URL, Method, Hdrs, Body, Timeout,
@@ -56,25 +53,13 @@ request(URL, Method, Hdrs, Body, Timeout,
     when is_function(F, 6) ->
     F(URL, Method, Hdrs, Body, Timeout, Config).
 
-request_lhttpc(URL, Method, Hdrs, Body, Timeout, #aws_config{lhttpc_pool = undefined, http_proxy = undefined}) ->
-    lhttpc:request(URL, Method, Hdrs, Body, Timeout, []);
-request_lhttpc(URL, Method, Hdrs, Body, Timeout, #aws_config{http_proxy = HttpProxy, lhttpc_pool = undefined}) ->
-    LHttpcOpts = [{proxy, HttpProxy}],
-    lhttpc:request(URL, Method, Hdrs, Body, Timeout, LHttpcOpts);
-request_lhttpc(URL, Method, Hdrs, Body, Timeout, #aws_config{lhttpc_pool = Pool, http_proxy = undefined}) ->
-    LHttpcOpts = [{pool, Pool}, {pool_ensure, true}],
-    lhttpc:request(URL, Method, Hdrs, Body, Timeout, LHttpcOpts);
-request_lhttpc(URL, Method, Hdrs, Body, Timeout, #aws_config{lhttpc_pool = Pool, http_proxy = HttpProxy}) ->
-    LHttpcOpts = [{pool, Pool}, {pool_ensure, true}, {proxy, HttpProxy}],
-    lhttpc:request(URL, Method, Hdrs, Body, Timeout, LHttpcOpts).
-
 %% Guard clause protects against empty bodied requests from being
 %% unable to find a matching httpc:request call.
-request_httpc(URL, Method, Hdrs, <<>>, Timeout, _Config) 
-    when (Method =:= options) orelse 
-         (Method =:= get) orelse 
-         (Method =:= head) orelse 
-         (Method =:= delete) orelse 
+request_httpc(URL, Method, Hdrs, <<>>, Timeout, _Config)
+    when (Method =:= options) orelse
+         (Method =:= get) orelse
+         (Method =:= head) orelse
+         (Method =:= delete) orelse
          (Method =:= trace) ->
     HdrsStr = [{to_list_string(K), to_list_string(V)} || {K, V} <- Hdrs],
     response_httpc(httpc:request(Method, {URL, HdrsStr},

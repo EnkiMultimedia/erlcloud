@@ -15,8 +15,7 @@
                   jsx,
                   eini,
                   base16,
-                  %% hackney,
-                  lhttpc]},
+                  hackney]},
   {modules, []},
   {env, [
       % Example    [{<<"kinesis">>, [<<"myAZ1.amazonaws.com">>, <<"myAZ2.amazonaws.com">>]}]
